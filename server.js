@@ -64,6 +64,10 @@ app.use("/bet", bet)
 const allowedOrigins = [
     "https://wicikis.vercel.app",
     "http://127.0.0.1:3100",
+    "http://localhost:8081/",
+    "http://localhost:8080/",
+    "https://fitmat-hub-admin.onrender.com/",
+    "https://fitmat-campus-hub.onrender.com/"
 ];
 
 app.use(
