@@ -62,8 +62,6 @@ app.use("/bet", bet)
 
 // origins allowed to access the backend 
 const allowedOrigins = [
-    "https://wicikis.vercel.app",
-    "http://127.0.0.1:3100",
     "http://localhost:8081/",
     "http://localhost:8080/",
     "https://fitmat-hub-admin.onrender.com/",
