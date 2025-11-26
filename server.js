@@ -151,8 +151,7 @@
 
 
 
-
-// server.js (corrected)
+// server.js (fixed)
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
@@ -160,7 +159,7 @@ import morgan from "morgan";
 import mongoose from "mongoose";
 import env from "dotenv";
 import cron from "node-cron";
-import fetch from "node-fetch"; // ensure node-fetch is installed & compatible with your Node version
+import fetch from "node-fetch"; // optional: Node 18+ has global fetch
 import adminlogin from "./routes/adminlogin.js";
 import election from "./routes/election.js";
 import votes from "./routes/vote.js";
@@ -173,18 +172,16 @@ env.config();
 
 const app = express();
 
-// --- middleware: security & logging ---
 app.use(helmet());
 app.use(morgan(":method :url :status :response-time ms - :res[content-length]"));
 
-// parse JSON / urlencoded bodies
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// --- keep Render alive (optional) ---
+// --- keep Render alive (if needed) ---
 const URL = "https://wicikibackend.onrender.com/ping";
 function scheduleRandomPing() {
-    const minutes = Math.floor(Math.random() * 11) + 5; // every 5–15 mins
+    const minutes = Math.floor(Math.random() * 11) + 5;
     cron.schedule(`*/${minutes} * * * *`, async () => {
         try {
             await fetch(URL);
@@ -196,7 +193,7 @@ function scheduleRandomPing() {
 }
 scheduleRandomPing();
 
-// --- CORS configuration (apply BEFORE your routes) ---
+// --- CORS (apply BEFORE routes) ---
 const allowedOrigins = [
     "http://localhost:8081",
     "http://localhost:8080",
@@ -207,27 +204,24 @@ const allowedOrigins = [
 app.use(
     cors({
         origin(origin, callback) {
-            // allow requests with no origin (e.g. curl, mobile apps)
             if (!origin) return callback(null, true);
             if (allowedOrigins.includes(origin)) return callback(null, true);
             return callback(new Error("Not allowed by CORS"));
         },
         methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
-        credentials: true, // set true only if you need cookies/auth across origins
+        credentials: true,
         optionsSuccessStatus: 204
     })
 );
 
-// respond to preflight for all routes
-app.options("*", cors());
+// NOTE: removed `app.options("*", cors())` because '*' caused path-to-regexp errors in this environment.
+// If you want an explicit options handler, use a valid pattern like '/*' or rely on the global CORS middleware.
 
-// quick health-check route
-app.get("/", (req, res) => {
-    res.send("server is on");
-});
+// health check
+app.get("/", (req, res) => res.send("server is on"));
 
-// --- routes (after cors) ---
+// routes (after CORS)
 app.use("/api/admin", adminlogin);
 app.use("/elect", election);
 app.use("/vote", votes);
@@ -236,10 +230,8 @@ app.use("/events", events);
 app.use("/candidates", candidates);
 app.use("/bet", bet);
 
-// correct PORT fallback order
 const PORT = process.env.PORT || 6000;
 
-// database connection + start server
 const connectdb = async () => {
     try {
         await mongoose.connect(process.env.MONGODB_URI);
