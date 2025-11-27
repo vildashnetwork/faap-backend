@@ -8,19 +8,36 @@ router.post("/", async (req, res) => {
     try {
         const { name, manifesto, photo, color,
             colorIndex, bg, email, approved, aboutyourteam } = req.body;
-        if (
-            !name ||
-            !manifesto ||
-            !photo ||
-            !color ||
-            bg === undefined || bg === null || bg === '' ||
-            !email ||
-            (colorIndex === undefined || colorIndex === null) ||
-            (approved === undefined || approved === null) ||
-            !Array.isArray(aboutyourteam) || aboutyourteam.length === 0
-        ) {
-            return res.status(400).json({ message: "All fields are required" });
+
+
+
+
+        // BEFORE
+        // if (!name || !manifesto || !photo || !color || !colorIndex || !bg || !email || !approved || aboutyourteam.length == 0) {
+        //   return res.status(400).json({ message: "All fields are required" });
+        // }
+
+        // AFTER — safer presence checks
+        const missingFields = [];
+
+        // top-level required (presence)
+        if (name === undefined || name === null || String(name).trim() === '') missingFields.push('name');
+        if (manifesto === undefined || manifesto === null || String(manifesto).trim() === '') missingFields.push('manifesto');
+        if (photo === undefined || photo === null || String(photo).trim() === '') missingFields.push('photo');
+        if (color === undefined || color === null || String(color).trim() === '') missingFields.push('color');
+        if (colorIndex === undefined || colorIndex === null || Number.isNaN(Number(colorIndex))) missingFields.push('colorIndex');
+        if (bg === undefined || bg === null || String(bg).trim() === '') missingFields.push('bg');
+        if (email === undefined || email === null || String(email).trim() === '') missingFields.push('email');
+        // approved is boolean: only check for undefined/null (allow false)
+        if (approved === undefined || approved === null) missingFields.push('approved');
+
+        // aboutyourteam must be an array with at least one member
+        if (!Array.isArray(aboutyourteam) || aboutyourteam.length === 0) missingFields.push('aboutyourteam');
+
+        if (missingFields.length > 0) {
+            return res.status(400).json({ message: `Missing or invalid fields: ${missingFields.join(', ')}` });
         }
+
 
         if (await RequestToBeCandidate.findOne({ email })) {
             return res.status(409).json({ message: "THIS REQUEST HAD ALREADY BEEN PLACED" });
