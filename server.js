@@ -47,7 +47,7 @@ const allowedOrigins = [
     "http://localhost:8080",
     "https://fitmat-hub-admin.onrender.com",
     "https://fitmat-campus-hub.onrender.com",
-    "http://localhost:5173/"
+    "http://localhost:5173"
 ];
 
 app.use(
