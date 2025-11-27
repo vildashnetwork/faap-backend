@@ -1,6 +1,6 @@
 import express from "express"
 
-import RequestToBeCandidate from "../model/requesttobeCandidate.js";
+import RequestToBeCandidate from "../models/requesttobeCandidate.js";
 
 const router = express.Router();
 
