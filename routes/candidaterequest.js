@@ -8,9 +8,17 @@ router.post("/", async (req, res) => {
     try {
         const { name, manifesto, photo, color,
             colorIndex, bg, email, approved, aboutyourteam } = req.body;
-        if (!name || !manifesto || !photo || !color ||
-            !colorIndex || !bg || !email ||
-            !approved || aboutyourteam.length == 0) {
+        if (
+            !name ||
+            !manifesto ||
+            !photo ||
+            !color ||
+            bg === undefined || bg === null || bg === '' ||
+            !email ||
+            (colorIndex === undefined || colorIndex === null) ||
+            (approved === undefined || approved === null) ||
+            !Array.isArray(aboutyourteam) || aboutyourteam.length === 0
+        ) {
             return res.status(400).json({ message: "All fields are required" });
         }
 
