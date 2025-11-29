@@ -62,4 +62,21 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
+
+router.get("/", async (req, res) => {
+    try {
+        const elect = await Election.find();
+        if (elect) {
+            res.status(200).json({ elect })
+
+        } else {
+            res.status(400).json({ message: "no data fetched" })
+        }
+
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ message: "internal server error" })
+    }
+})
+
 export default router;
